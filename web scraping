@@ -1,0 +1,79 @@
+import requests
+class DeviceTracker:
+    def __init__(self, ip_url):
+        self.ip_url = ip_url
+
+    def get_device_data(self):
+        ip_req = requests.get(url=self.ip_url)
+        ip_data = ip_req.json()
+        return ip_data
+
+    def get_user_loc(self):
+        ip_data = self.get_device_data()
+        city_name = ip_data['city']
+        return city_name
+
+
+ip_url = 'http://ip-api.com/json'
+ip_dev = DeviceTracker(ip_url=ip_url)
+city_name = ip_dev.get_device_data()
+print(city_name)
+
+# DeviceTracker
+# get_device_data
+# get_user_loc #city
+
+
+import requests
+class WeatherApp(DeviceTracker):
+    def __init__(self, ip_url):
+        super().__init__(ip_url)
+        self.ip_url = ip_url
+        self.weather_url = 'http://api.openweathermap.org/data/2.5/weather?q={}&appid=9d41bd4e5bffd04e03a6cb'
+        self.place_name = None
+
+    def get_device_data(self):
+        self.place_name = input("please enter valid city name : ")
+        w_url = self.weather_url.format(self.place_name)
+        w_req = requests.get(url=w_url)
+
+        if w_req.status_code == 200:
+            w_data = w_req.json()
+        else:
+            print("--------------")
+            print("The entered place name is not valid ")
+            print("Getting the user location ...")
+            self.get_user_loc()
+            w_url = self.weather_url.format(slef.place_name)
+            w_req = requests.get(url=w_url)
+            w_data = w_req.json()
+        return w_data
+
+    def get_parsed_details(self):
+        w_data = self.get_weather_data()
+
+        desc = w_data['weather'][0]['description']
+        temp = w_data['main']['temp']
+        humidity = w_data['main']['humidity']
+        wind_speed = w_data['wind']['speed']
+        all_clouds = w_data['clouds']['all']
+
+        celsius = temp - 273
+        fahrenheit = (celsius * (9 / 5)) + 32
+        print("-----------")
+        print("The weather deatails of the place -{}".format(self.place_name))
+        print("Weather description -", desc)
+        print("The temp in celsius - ", round(celsius, 2))
+        print("The temp in fahrenheit - ", round(fahrenheit, 2))
+        print("The wind speed - {} mpg".format(wind_speed))
+        print("Humidity -", humidity)
+        print("Total clouds -", all_clouds)
+        return None
+
+    def get_user_loc(self):
+        pass
+
+
+ip_url = 'http://ip-api.com/json'
+w_app = WeatherApp(ip_url=ip_url)
+w_app.get_parsed_details()
